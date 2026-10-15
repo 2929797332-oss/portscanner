@@ -1,23 +1,14 @@
+"""
+端口扫描器 —— 基于 socket connect_ex 的 TCP 端口扫描脚本。
+用法: python3 scan.py <目标IP> <起始端口> <结束端口>
+"""
+
 import socket
 import sys
 
 CLOSED_CODES  = {111, 10061}
 TIMEOUT_CODES = {110, 10035}
 
-if len(sys.argv)<4:
-    print("用法：python3 scan.py 需扫描的ip 端口范围1 端口范围2")
-    print("如需只扫描一个端口就填同一个数")
-    print("空格不能省略！！！")
-    sys.exit(1)
-
-try:
-    start = int(sys.argv[2])
-    end = int(sys.argv[3])
-except ValueError:
-    print("端口号必须是数字")
-    sys.exit(1)
-
-target = sys.argv[1]
 
 def scan_port(target, port):
     """
@@ -61,9 +52,34 @@ def scan_ports(target, ports):
     buckets["target"] = target
     buckets["ports"]  = list(ports)
     return buckets
-        
+ 
+
+def main():
+    """
+    命令行入口：从 sys.argv 取 IP 和端口范围，扫描后打印状态摘要。
+
+    用法: python3 scan.py <目标IP> <起始端口> <结束端口>
+    """
+    if len(sys.argv)<4:
+        print("用法:python3 scan.py 需扫描的ip 端口范围1 端口范围2")
+        print("如需只扫描一个端口就填同一个数")
+        print("空格不能省略！！！")
+        sys.exit(1)
+
+    target = sys.argv[1]
+    
+    try:
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+    except ValueError:
+        print("端口号必须是数字")
+        sys.exit(1)
+
+    result = scan_ports(target, range(start, end + 1))
+    print("开放：", result["open"])
+    print("关闭数：", len(result["closed"]))
+    print("超时数：", len(result["timeout"]))
+
+
 if __name__ == '__main__':
-    a = scan_ports("192.168.75.128", range(1, 101))
-    print("开放：", a["open"])
-    print("关闭数：", len(a["closed"]))
-    print("超时数：", len(a["timeout"]))
+    main()
