@@ -5,9 +5,21 @@
 
 import socket
 import sys
+import datetime
 
 CLOSED_CODES  = {111, 10061}
 TIMEOUT_CODES = {110, 10035}
+
+
+
+def make_filename(target):
+    """
+    返回文件名  格式：scan_<ip>_<生成时间>.json
+    """
+    now = datetime.datetime.now()
+    text = now.strftime("%Y%m%d_%H%M%S")
+    safe_ip = target.replace(".", "_")    
+    return f"scan_{safe_ip}_{text}.json"
 
 
 def scan_port(target, port):
